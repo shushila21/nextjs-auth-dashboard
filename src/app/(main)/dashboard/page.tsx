@@ -25,7 +25,6 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 
 const fetchDashboardData = async () => {
-  // Simulate API call
   await new Promise((resolve) => setTimeout(resolve, 1000));
 
   return dashboardData;
