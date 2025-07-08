@@ -5,11 +5,11 @@
 const config = {
   printWidth: 80,
   singleQuote: true,
-  trailingComma: "all",
+  trailingComma: 'all',
   bracketSpacing: true,
   tabWidth: 2,
   semi: true,
-  endOfLine: "auto",
+  endOfLine: 'auto',
 };
 
 export default config;
