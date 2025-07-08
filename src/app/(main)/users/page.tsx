@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   Table,
   Button,
@@ -16,7 +16,6 @@ import {
   Typography,
   Popconfirm,
   message,
-  InputRef,
   InputNumber,
 } from 'antd';
 import {
@@ -31,7 +30,6 @@ import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
-const { RangePicker } = DatePicker;
 
 interface User {
   key: string;
@@ -101,39 +99,29 @@ export default function UsersPage() {
     { label: 'Manager', value: 'manager' },
   ];
 
-  const debounce = (func: Function, delay: number) => {
+  const debouncedSearch = useCallback(() => {
     let timeoutId: NodeJS.Timeout;
-    return (...args: any[]) => {
+    return (query: string) => {
       clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => func(...args), delay);
+      timeoutId = setTimeout(() => {
+        if (!query.trim()) {
+          setFilteredUsers(users);
+          return;
+        }
+        const filtered = users.filter((user) =>
+          Object.values(user).some((val) =>
+            val?.toString().toLowerCase().includes(query.toLowerCase()),
+          ),
+        );
+        setFilteredUsers(filtered);
+      }, 300);
     };
-  };
-
-  const debouncedSearch = useCallback(
-    debounce((query: string) => {
-      if (!query.trim()) {
-        setFilteredUsers(users);
-        return;
-      }
-      const filtered = users.filter((user) =>
-        Object.values(user).some((val) =>
-          val?.toString().toLowerCase().includes(query.toLowerCase()),
-        ),
-      );
-      setFilteredUsers(filtered);
-    }, 300),
-    [users],
-  );
+  }, [users])();
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchText(value);
     debouncedSearch(value);
-  };
-
-  const handleReset = (clearFilters: () => void) => {
-    clearFilters();
-    setSearchText('');
   };
 
   // Modal handlers

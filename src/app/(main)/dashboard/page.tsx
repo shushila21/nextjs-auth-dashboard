@@ -49,7 +49,7 @@ const fetchDashboardData = async () => {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { data: session, status } = useSession({
+  const { status } = useSession({
     required: true,
     onUnauthenticated: () => {
       router.push('/auth/login');
