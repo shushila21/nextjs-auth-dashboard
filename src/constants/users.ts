@@ -41,6 +41,26 @@ export const usersData: IUserData[] = [
     isActive: true,
     salary: 60000,
   },
+  {
+    key: '4',
+    name: 'Karen Joyce',
+    email: 'karen.joe@example.com',
+    birthDate: '1992-02-10',
+    gender: 'female',
+    role: 'manager',
+    isActive: true,
+    salary: 85000,
+  },
+  {
+    key: '5',
+    name: 'Joan Li',
+    email: 'joan.li@example.com',
+    birthDate: '1994-02-10',
+    gender: 'female',
+    role: 'manager',
+    isActive: true,
+    salary: 55000,
+  },
 ];
 
 // Field types and options

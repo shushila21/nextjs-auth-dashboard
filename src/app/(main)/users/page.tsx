@@ -28,12 +28,7 @@ import {
 import { ColumnType } from 'antd/es/table/interface';
 import dayjs from 'dayjs';
 import { useDebouncedSearch } from '@shushila21/ui-library';
-import {
-  genderOptions,
-  type IUserData,
-  roleOptions,
-  usersData,
-} from '@/constants/users';
+import { genderOptions, type IUserData, roleOptions } from '@/constants/users';
 import { useUserStore } from '@/stores/usersStore';
 
 const { Title, Text } = Typography;
