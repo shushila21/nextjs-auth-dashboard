@@ -7,7 +7,7 @@ import { NAV_ITEMS } from '@/constants/layout';
 import { COLORS } from '@/constants/theme';
 import BrandLogo from '../BrandLogo';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({
   isOpen,

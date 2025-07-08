@@ -5,7 +5,7 @@ import type { MenuProps } from 'antd';
 import { COLORS } from '@/constants/theme';
 import { UserProfileDropdownProps } from '@/types/layout';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 const UserProfileDropdown: React.FC<UserProfileDropdownProps> = ({
   session,

@@ -1,4 +1,3 @@
-import type { MenuProps } from 'antd';
 import type { Session } from 'next-auth';
 
 export interface LayoutProps {

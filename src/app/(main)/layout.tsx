@@ -3,14 +3,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
-import {
-  Layout,
-  Menu,
-  theme as antdTheme,
-  Typography,
-  Flex,
-  Button,
-} from 'antd';
+import { Layout, Menu, Typography, Flex, Button } from 'antd';
 import { MenuOutlined } from '@ant-design/icons';
 import Link from 'next/link';
 import {
