@@ -49,7 +49,7 @@ export default function MainLayout({ children }: LayoutProps) {
 
   const handleLogout = useCallback(() => {
     signOut();
-    router.push('/login');
+    router.push('/auth/login');
   }, [router]);
 
   const navItems = useMemo(
