@@ -43,7 +43,8 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               size={48}
               icon={<UserOutlined />}
               style={{
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background:
+                  'linear-gradient(135deg, #667eea 0%,rgb(28, 44, 161) 100%)',
                 boxShadow: '0 4px 12px rgba(102, 126, 234, 0.3)',
               }}
             />
@@ -53,15 +54,6 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               </Text>
               <Text type="secondary" style={{ fontSize: '12px' }}>
                 {session?.user?.email || 'admin@example.com'}
-              </Text>
-              <Text
-                style={{
-                  fontSize: '11px',
-                  color: '#52c41a',
-                  fontWeight: 500,
-                }}
-              >
-                ● Online
               </Text>
             </Flex>
           </Flex>
@@ -124,7 +116,8 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               width: '40px',
               height: '40px',
               borderRadius: '12px',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background:
+                'linear-gradient(135deg, #667eea 0%,rgb(28, 44, 161) 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -139,7 +132,8 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
             level={4}
             style={{
               margin: 0,
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background:
+                'linear-gradient(135deg, #667eea 0%,rgb(28, 44, 161) 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               fontSize: '20px',
@@ -209,7 +203,7 @@ const MainLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 icon={<UserOutlined />}
                 style={{
                   background:
-                    'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    'linear-gradient(135deg, #667eea 0%,rgb(28, 44, 161) 100%)',
                 }}
               />
               <Flex vertical style={{ lineHeight: 1 }}>
