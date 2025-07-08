@@ -34,18 +34,26 @@ import {
   roleOptions,
   usersData,
 } from '@/constants/users';
+import { useUserStore } from '@/stores/usersStore';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 
 export default function UsersPage() {
   const [form] = Form.useForm();
-  const [users, setUsers] = useState(usersData);
-  const [filteredUsers, setFilteredUsers] = useState(usersData);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingUser, setEditingUser] = useState<IUserData | null>(null);
   const [searchText, setSearchText] = useState('');
   const { notification } = App.useApp();
+
+  const {
+    users,
+    filteredUsers,
+    addUser,
+    updateUser,
+    deleteUser,
+    setFilteredUsers,
+  } = useUserStore();
 
   // use the custom hook to get the debounced search term
   const debouncedSearchTerm = useDebouncedSearch(searchText, 350); // 350ms delay
@@ -68,7 +76,7 @@ export default function UsersPage() {
       ),
     );
     setFilteredUsers(filtered);
-  }, [debouncedSearchTerm, users]);
+  }, [debouncedSearchTerm, users, setFilteredUsers]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value);
@@ -112,18 +120,14 @@ export default function UsersPage() {
       };
 
       if (editingUser) {
-        const updatedUsers = users.map((user) =>
-          user.key === editingUser.key ? { ...user, ...formattedValues } : user,
-        );
-        setUsers(updatedUsers);
+        updateUser(editingUser.key, formattedValues);
         notification.success({ message: 'User updated successfully!' });
       } else {
         const newUser: IUserData = {
           key: Date.now().toString(),
           ...formattedValues,
         };
-        const updatedUsers = [...users, newUser];
-        setUsers(updatedUsers);
+        addUser(newUser);
         notification.success({ message: 'User created successfully!' });
       }
       handleCancel();
@@ -131,8 +135,7 @@ export default function UsersPage() {
   };
 
   const handleDelete = (key: string) => {
-    const updatedUsers = users.filter((user) => user.key !== key);
-    setUsers(updatedUsers);
+    deleteUser(key);
     notification.success({ message: 'User deleted successfully!' });
   };
 
