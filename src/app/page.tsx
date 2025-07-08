@@ -1,7 +1,36 @@
-export default function Home() {
+'use client';
+
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+
+export default function HomePage() {
+  const { data: session, status } = useSession({
+    required: true,
+    onUnauthenticated: () => {
+      router.push('/auth/login');
+    },
+  });
+  const router = useRouter();
+
+  useEffect(() => {
+    if (status === 'loading') return;
+
+    if (session) {
+      router.push('/dashboard');
+    }
+  }, [session, status, router]);
+
   return (
-    <div>
-      <main>This is main home page</main>
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: '100vh',
+      }}
+    >
+      <div>Loading...</div>
     </div>
   );
 }
