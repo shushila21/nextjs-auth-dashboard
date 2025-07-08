@@ -27,62 +27,17 @@ import {
 } from '@ant-design/icons';
 import { ColumnType } from 'antd/es/table/interface';
 import dayjs from 'dayjs';
+import { type IUserData, usersData } from '@/constants/users';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-interface User {
-  key: string;
-  name: string;
-  email: string;
-  birthDate: string;
-  gender: string;
-  role: string;
-  isActive: boolean;
-  salary: number;
-  avatar?: string;
-}
-
-// Mock initial data
-const initialData: User[] = [
-  {
-    key: '1',
-    name: 'John Brown',
-    email: 'john.brown@example.com',
-    birthDate: '1990-05-15',
-    gender: 'male',
-    role: 'admin',
-    isActive: true,
-    salary: 75000,
-  },
-  {
-    key: '2',
-    name: 'Jim Green',
-    email: 'jim.green@example.com',
-    birthDate: '1985-11-22',
-    gender: 'male',
-    role: 'developer',
-    isActive: false,
-    salary: 65000,
-  },
-  {
-    key: '3',
-    name: 'Jane Doe',
-    email: 'jane.doe@example.com',
-    birthDate: '1995-02-10',
-    gender: 'female',
-    role: 'designer',
-    isActive: true,
-    salary: 60000,
-  },
-];
-
 export default function UsersPage() {
   const [form] = Form.useForm();
-  const [users, setUsers] = useState<User[]>(initialData);
-  const [filteredUsers, setFilteredUsers] = useState<User[]>(initialData);
+  const [users, setUsers] = useState(usersData);
+  const [filteredUsers, setFilteredUsers] = useState(usersData);
   const [isModalVisible, setIsModalVisible] = useState(false);
-  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [editingUser, setEditingUser] = useState<IUserData | null>(null);
   const [searchText, setSearchText] = useState('');
 
   // Field types and options
@@ -125,7 +80,7 @@ export default function UsersPage() {
   };
 
   // Modal handlers
-  const showModal = (user: User | null) => {
+  const showModal = (user: IUserData | null) => {
     setEditingUser(user);
     form.setFieldsValue(
       user
@@ -169,7 +124,7 @@ export default function UsersPage() {
         setFilteredUsers(updatedUsers);
         message.success('User updated successfully!');
       } else {
-        const newUser: User = {
+        const newUser: IUserData = {
           key: Date.now().toString(),
           ...formattedValues,
         };
@@ -190,7 +145,7 @@ export default function UsersPage() {
   };
 
   // Columns configuration
-  const columns: ColumnType<User>[] = [
+  const columns: ColumnType<IUserData>[] = [
     {
       title: 'Name',
       dataIndex: 'name',
