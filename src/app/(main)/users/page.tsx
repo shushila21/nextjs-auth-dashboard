@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Table,
   Button,
@@ -27,6 +27,7 @@ import {
 } from '@ant-design/icons';
 import { ColumnType } from 'antd/es/table/interface';
 import dayjs from 'dayjs';
+import { useDebouncedSearch } from '@shushila21/ui-library';
 import {
   genderOptions,
   type IUserData,
@@ -45,29 +46,31 @@ export default function UsersPage() {
   const [editingUser, setEditingUser] = useState<IUserData | null>(null);
   const [searchText, setSearchText] = useState('');
 
-  const debouncedSearch = useCallback(() => {
-    let timeoutId: NodeJS.Timeout;
-    return (query: string) => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        if (!query.trim()) {
-          setFilteredUsers(users);
-          return;
-        }
-        const filtered = users.filter((user) =>
-          Object.values(user).some((val) =>
-            val?.toString().toLowerCase().includes(query.toLowerCase()),
-          ),
-        );
-        setFilteredUsers(filtered);
-      }, 300);
-    };
-  }, [users])();
+  // use the custom hook to get the debounced search term
+  const debouncedSearchTerm = useDebouncedSearch(searchText, 350); // 350ms delay
+
+  // useEffect to filter users when the debounced search term or the original users list changes
+  useEffect(() => {
+    if (!debouncedSearchTerm.trim()) {
+      setFilteredUsers(users); // If search is empty, show all users
+      return;
+    }
+
+    const filtered = users.filter((user) =>
+      Object.values(user).some(
+        (val) =>
+          val &&
+          val
+            .toString()
+            .toLowerCase()
+            .includes(debouncedSearchTerm.toLowerCase()),
+      ),
+    );
+    setFilteredUsers(filtered);
+  }, [debouncedSearchTerm, users]);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchText(value);
-    debouncedSearch(value);
+    setSearchText(e.target.value);
   };
 
   // Modal handlers
@@ -112,7 +115,6 @@ export default function UsersPage() {
           user.key === editingUser.key ? { ...user, ...formattedValues } : user,
         );
         setUsers(updatedUsers);
-        setFilteredUsers(updatedUsers);
         message.success('User updated successfully!');
       } else {
         const newUser: IUserData = {
@@ -121,7 +123,6 @@ export default function UsersPage() {
         };
         const updatedUsers = [...users, newUser];
         setUsers(updatedUsers);
-        setFilteredUsers(updatedUsers);
         message.success('User created successfully!');
       }
       handleCancel();
@@ -131,7 +132,6 @@ export default function UsersPage() {
   const handleDelete = (key: string) => {
     const updatedUsers = users.filter((user) => user.key !== key);
     setUsers(updatedUsers);
-    setFilteredUsers(updatedUsers);
     message.success('User deleted successfully!');
   };
 
