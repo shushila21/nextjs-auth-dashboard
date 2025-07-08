@@ -49,6 +49,10 @@ export default function DashboardPage() {
       <Layout
         style={{
           background: 'inherit',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '80vh',
         }}
       >
         <Spin size="large" />
