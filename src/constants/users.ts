@@ -42,3 +42,17 @@ export const usersData: IUserData[] = [
     salary: 60000,
   },
 ];
+
+// Field types and options
+export const genderOptions = [
+  { label: 'Male', value: 'male' },
+  { label: 'Female', value: 'female' },
+  { label: 'Other', value: 'other' },
+];
+
+export const roleOptions = [
+  { label: 'Admin', value: 'admin' },
+  { label: 'Developer', value: 'developer' },
+  { label: 'Designer', value: 'designer' },
+  { label: 'Manager', value: 'manager' },
+];

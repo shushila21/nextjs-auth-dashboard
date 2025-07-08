@@ -27,7 +27,12 @@ import {
 } from '@ant-design/icons';
 import { ColumnType } from 'antd/es/table/interface';
 import dayjs from 'dayjs';
-import { type IUserData, usersData } from '@/constants/users';
+import {
+  genderOptions,
+  type IUserData,
+  roleOptions,
+  usersData,
+} from '@/constants/users';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -39,20 +44,6 @@ export default function UsersPage() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingUser, setEditingUser] = useState<IUserData | null>(null);
   const [searchText, setSearchText] = useState('');
-
-  // Field types and options
-  const genderOptions = [
-    { label: 'Male', value: 'male' },
-    { label: 'Female', value: 'female' },
-    { label: 'Other', value: 'other' },
-  ];
-
-  const roleOptions = [
-    { label: 'Admin', value: 'admin' },
-    { label: 'Developer', value: 'developer' },
-    { label: 'Designer', value: 'designer' },
-    { label: 'Manager', value: 'manager' },
-  ];
 
   const debouncedSearch = useCallback(() => {
     let timeoutId: NodeJS.Timeout;
@@ -378,11 +369,7 @@ export default function UsersPage() {
             valuePropName="fileList"
             getValueFromEvent={(e) => e.fileList}
           >
-            <Upload
-              listType="picture"
-              beforeUpload={() => false} // Prevent automatic upload
-              maxCount={1}
-            >
+            <Upload listType="picture" beforeUpload={() => false} maxCount={1}>
               <Button icon={<UploadOutlined />}>Click to upload</Button>
             </Upload>
           </Form.Item>
