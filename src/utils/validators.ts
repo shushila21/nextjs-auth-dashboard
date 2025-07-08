@@ -1,6 +1,16 @@
+type ValidatorFn<T = unknown> = (value: T) => string | undefined;
+
 export const validators = {
-  required: (value: any): string | undefined => {
-    if (!value || (typeof value === 'string' && value.trim() === '')) {
+  required: (
+    value: string | number | boolean | null | undefined,
+  ): string | undefined => {
+    if (
+      value === null ||
+      value === undefined ||
+      value === false ||
+      (typeof value === 'string' && value.trim() === '') ||
+      (typeof value === 'number' && isNaN(value))
+    ) {
       return 'This field is required';
     }
     return undefined;
@@ -16,8 +26,8 @@ export const validators = {
   },
 
   minLength:
-    (min: number) =>
-    (value: string): string | undefined => {
+    (min: number): ValidatorFn<string> =>
+    (value) => {
       if (!value) return undefined;
       if (value.length < min) {
         return `Must be at least ${min} characters long`;
@@ -26,8 +36,8 @@ export const validators = {
     },
 
   maxLength:
-    (max: number) =>
-    (value: string): string | undefined => {
+    (max: number): ValidatorFn<string> =>
+    (value) => {
       if (!value) return undefined;
       if (value.length > max) {
         return `Must be no more than ${max} characters long`;
@@ -37,7 +47,7 @@ export const validators = {
 
   phone: (value: string): string | undefined => {
     if (!value) return undefined;
-    const phoneRegex = /^\+?[\d\s\-$$$$]+$/;
+    const phoneRegex = /^\+?[\d\s\-]+$/;
     if (!phoneRegex.test(value)) {
       return 'Please enter a valid phone number';
     }
@@ -54,8 +64,8 @@ export const validators = {
     }
   },
 
-  number: (value: any): string | undefined => {
-    if (!value) return undefined;
+  number: (value: string | number): string | undefined => {
+    if (value === null || value === undefined || value === '') return undefined;
     if (isNaN(Number(value))) {
       return 'Please enter a valid number';
     }
@@ -63,8 +73,8 @@ export const validators = {
   },
 
   combine:
-    (...validatorFns: Array<(value: any) => string | undefined>) =>
-    (value: any): string | undefined => {
+    <T>(...validatorFns: ValidatorFn<T>[]): ValidatorFn<T> =>
+    (value: T) => {
       for (const validator of validatorFns) {
         const error = validator(value);
         if (error) return error;

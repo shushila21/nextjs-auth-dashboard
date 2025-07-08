@@ -1,12 +1,27 @@
 import NextAuth, { type NextAuthOptions } from 'next-auth';
-import type { JWT } from 'next-auth/jwt';
 import CredentialsProvider from 'next-auth/providers/credentials';
+import type { JWT } from 'next-auth/jwt';
+import type { User, Session } from 'next-auth';
 
-interface User {
+// Custom user object returned from `authorize`
+interface ExtendedUser extends User {
   accessToken: string;
   refreshToken: string;
   accessTokenExpires: number;
   refreshTokenExpires: number;
+}
+
+// Extend the token with custom fields
+interface ExtendedToken extends JWT {
+  accessToken?: string;
+  refreshToken?: string;
+  accessTokenExpires?: number;
+  refreshTokenExpires?: number;
+}
+
+// Extend session user to include token fields
+interface ExtendedSession extends Session {
+  user: ExtendedToken;
 }
 
 export const authOptions: NextAuthOptions = {
@@ -14,10 +29,7 @@ export const authOptions: NextAuthOptions = {
     CredentialsProvider({
       name: 'Credentials',
       credentials: {
-        email: {
-          label: 'Email',
-          type: 'email',
-        },
+        email: { label: 'Email', type: 'email' },
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
@@ -25,9 +37,10 @@ export const authOptions: NextAuthOptions = {
           credentials?.email === 'admin@gmail.com' &&
           credentials.password === 'admin@123'
         ) {
-          const accessTokenExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
+          const accessTokenExpires = Date.now() + 15 * 60 * 1000; // 15 min
           const refreshTokenExpires = Date.now() + 1 * 24 * 60 * 60 * 1000; // 1 day
-          return {
+
+          const user: ExtendedUser = {
             id: '1',
             name: 'Admin User',
             email: 'admin@example.com',
@@ -36,6 +49,8 @@ export const authOptions: NextAuthOptions = {
             accessTokenExpires,
             refreshTokenExpires,
           };
+
+          return user;
         }
         return null;
       },
@@ -53,17 +68,19 @@ export const authOptions: NextAuthOptions = {
   },
 
   callbacks: {
-    async jwt({ token, user }: { token: JWT; user: any }) {
-      // first login
+    async jwt({ token, user }) {
+      const u = user as ExtendedUser;
+
+      // First login
       if (user) {
-        token.accessToken = user.accessToken;
-        token.refreshToken = (user as any).refreshToken;
-        token.accessTokenExpires = (user as any).accessTokenExpires;
-        token.refreshTokenExpires = (user as any).refreshTokenExpires;
+        token.accessToken = u.accessToken;
+        token.refreshToken = u.refreshToken;
+        token.accessTokenExpires = u.accessTokenExpires;
+        token.refreshTokenExpires = u.refreshTokenExpires;
         return token;
       }
 
-      // access token still valid
+      // Access token still valid
       if (
         typeof token.accessTokenExpires === 'number' &&
         Date.now() < token.accessTokenExpires
@@ -71,24 +88,23 @@ export const authOptions: NextAuthOptions = {
         return token;
       }
 
-      // access token expired, refresh
+      // Access token expired but refresh token is still valid
       if (
         token.refreshToken &&
         typeof token.refreshTokenExpires === 'number' &&
         Date.now() < token.refreshTokenExpires
       ) {
-        // simulate refreshing access token
         token.accessToken = 'mock-access-token-refreshed-' + Date.now();
-        token.accessTokenExpires = Date.now() + 30 * 1000;
+        token.accessTokenExpires = Date.now() + 15 * 60 * 1000; // 15 min
         return token;
       }
 
-      // both tokens expired
-      return {}; // Returning empty object ends session on frontend
+      // Both expired — clear session
+      return {} as ExtendedToken;
     },
 
     async session({ session, token }) {
-      session.user = token;
+      (session as ExtendedSession).user = token as ExtendedToken;
       return session;
     },
   },

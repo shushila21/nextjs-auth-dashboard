@@ -1,84 +1,92 @@
 'use client';
 
 import type React from 'react';
-
 import { useState, useCallback } from 'react';
 
-export interface FormField {
-  value: any;
+export interface FormField<T = unknown> {
+  value: T;
   error?: string;
   touched?: boolean;
 }
 
-export interface FormState {
-  [key: string]: FormField;
+export type FormState<TValues> = {
+  [K in keyof TValues]: FormField<TValues[K]>;
+};
+
+export interface UseFormHandlerOptions<TValues> {
+  initialValues?: TValues;
+  validationRules?: {
+    [K in keyof TValues]?: (value: TValues[K]) => string | undefined;
+  };
+  onSubmit?: (values: TValues) => void | Promise<void>;
 }
 
-export interface UseFormHandlerOptions {
-  initialValues?: Record<string, any>;
-  validationRules?: Record<string, (value: any) => string | undefined>;
-  onSubmit?: (values: Record<string, any>) => void | Promise<void>;
-}
+export const useFormHandler = <TValues extends Record<string, unknown>>(
+  options: UseFormHandlerOptions<TValues> = {},
+) => {
+  const {
+    initialValues = {} as TValues,
+    validationRules = {} as UseFormHandlerOptions<TValues>['validationRules'],
+    onSubmit,
+  } = options;
 
-export const useFormHandler = (options: UseFormHandlerOptions = {}) => {
-  const { initialValues = {}, validationRules = {}, onSubmit } = options;
-
-  const [formState, setFormState] = useState<FormState>(() => {
-    const state: FormState = {};
-    Object.keys(initialValues).forEach((key) => {
+  const [formState, setFormState] = useState<FormState<TValues>>(() => {
+    const state = {} as FormState<TValues>;
+    for (const key in initialValues) {
       state[key] = {
         value: initialValues[key],
         error: undefined,
         touched: false,
       };
-    });
+    }
     return state;
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const setValue = useCallback(
-    (name: string, value: any) => {
+    <K extends keyof TValues>(name: K, value: TValues[K]) => {
       setFormState((prev) => ({
         ...prev,
         [name]: {
           ...prev[name],
           value,
           touched: true,
-          error: validationRules[name]
-            ? validationRules[name](value)
-            : undefined,
+          error: validationRules?.[name]?.(value),
         },
       }));
     },
     [validationRules],
   );
 
-  const setError = useCallback((name: string, error: string) => {
-    setFormState((prev) => ({
-      ...prev,
-      [name]: {
-        ...prev[name],
-        error,
-      },
-    }));
-  }, []);
+  const setError = useCallback(
+    <K extends keyof TValues>(name: K, error: string) => {
+      setFormState((prev) => ({
+        ...prev,
+        [name]: {
+          ...prev[name],
+          error,
+        },
+      }));
+    },
+    [],
+  );
 
-  const validateForm = useCallback(() => {
+  const validateForm = useCallback((): boolean => {
     let isValid = true;
     const newState = { ...formState };
 
-    Object.keys(formState).forEach((key) => {
-      if (validationRules[key]) {
-        const error = validationRules[key](formState[key].value);
-        newState[key] = {
-          ...newState[key],
-          error,
-          touched: true,
-        };
-        if (error) isValid = false;
-      }
-    });
+    for (const key in formState) {
+      const validator = validationRules?.[key];
+      const value = formState[key].value;
+      const error = validator?.(value);
+      newState[key] = {
+        ...newState[key],
+        error,
+        touched: true,
+      };
+      if (error) isValid = false;
+    }
 
     setFormState(newState);
     return isValid;
@@ -92,10 +100,10 @@ export const useFormHandler = (options: UseFormHandlerOptions = {}) => {
 
       setIsSubmitting(true);
       try {
-        const values: Record<string, any> = {};
-        Object.keys(formState).forEach((key) => {
-          values[key] = formState[key].value;
-        });
+        const values = Object.keys(formState).reduce((acc, key) => {
+          acc[key as keyof TValues] = formState[key as keyof TValues].value;
+          return acc;
+        }, {} as TValues);
 
         if (onSubmit) {
           await onSubmit(values);
@@ -110,28 +118,37 @@ export const useFormHandler = (options: UseFormHandlerOptions = {}) => {
   );
 
   const reset = useCallback(() => {
-    const state: FormState = {};
-    Object.keys(initialValues).forEach((key) => {
+    const state = {} as FormState<TValues>;
+    for (const key in initialValues) {
       state[key] = {
         value: initialValues[key],
         error: undefined,
         touched: false,
       };
-    });
+    }
     setFormState(state);
   }, [initialValues]);
 
   const getFieldProps = useCallback(
-    (name: string) => ({
-      value: formState[name]?.value || '',
+    <K extends keyof TValues>(name: K) => ({
+      value: formState[name]?.value ?? '',
       error: formState[name]?.error,
-      onChange: (e: React.ChangeEvent<HTMLInputElement> | any) => {
-        const value = e?.target?.value !== undefined ? e.target.value : e;
-        setValue(name, value);
+      onChange: (e: React.ChangeEvent<HTMLInputElement> | TValues[K]) => {
+        if (!e) return;
+        const value =
+          typeof e === 'object' && 'target' in e && e.target
+            ? (e.target as HTMLInputElement).value
+            : e;
+        setValue(name, value as TValues[K]);
       },
     }),
     [formState, setValue],
   );
+
+  const values = Object.keys(formState).reduce((acc, key) => {
+    acc[key as keyof TValues] = formState[key as keyof TValues].value;
+    return acc;
+  }, {} as TValues);
 
   return {
     formState,
@@ -142,12 +159,6 @@ export const useFormHandler = (options: UseFormHandlerOptions = {}) => {
     reset,
     getFieldProps,
     isSubmitting,
-    values: Object.keys(formState).reduce(
-      (acc, key) => {
-        acc[key] = formState[key].value;
-        return acc;
-      },
-      {} as Record<string, any>,
-    ),
+    values,
   };
 };
