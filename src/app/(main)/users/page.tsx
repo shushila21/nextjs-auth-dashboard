@@ -1,5 +1,6 @@
 'use client';
-import React, { useState, useRef } from 'react';
+
+import React, { useState, useRef, useCallback } from 'react';
 import {
   Table,
   Button,
@@ -25,8 +26,7 @@ import {
   SearchOutlined,
   UploadOutlined,
 } from '@ant-design/icons';
-import Highlighter from 'react-highlight-words';
-import { ColumnType, FilterConfirmProps } from 'antd/es/table/interface';
+import { ColumnType } from 'antd/es/table/interface';
 import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
@@ -82,11 +82,10 @@ const initialData: User[] = [
 export default function UsersPage() {
   const [form] = Form.useForm();
   const [users, setUsers] = useState<User[]>(initialData);
+  const [filteredUsers, setFilteredUsers] = useState<User[]>(initialData);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [searchText, setSearchText] = useState('');
-  const [searchedColumn, setSearchedColumn] = useState('');
-  const searchInput = useRef<InputRef>(null);
 
   // Field types and options
   const genderOptions = [
@@ -102,25 +101,40 @@ export default function UsersPage() {
     { label: 'Manager', value: 'manager' },
   ];
 
-  // Search functionality (same as before)
-  const handleSearch = (
-    selectedKeys: string[],
-    confirm: (param?: FilterConfirmProps) => void,
-    dataIndex: keyof User,
-  ) => {
-    confirm();
-    setSearchText(selectedKeys[0]);
-    setSearchedColumn(dataIndex);
+  const debounce = (func: Function, delay: number) => {
+    let timeoutId: NodeJS.Timeout;
+    return (...args: any[]) => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => func(...args), delay);
+    };
+  };
+
+  const debouncedSearch = useCallback(
+    debounce((query: string) => {
+      if (!query.trim()) {
+        setFilteredUsers(users);
+        return;
+      }
+      const filtered = users.filter((user) =>
+        Object.values(user).some((val) =>
+          val?.toString().toLowerCase().includes(query.toLowerCase()),
+        ),
+      );
+      setFilteredUsers(filtered);
+    }, 300),
+    [users],
+  );
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchText(value);
+    debouncedSearch(value);
   };
 
   const handleReset = (clearFilters: () => void) => {
     clearFilters();
     setSearchText('');
   };
-
-  const getColumnSearchProps = (dataIndex: keyof User): ColumnType<User> => ({
-    // ... (same search implementation as before)
-  });
 
   // Modal handlers
   const showModal = (user: User | null) => {
@@ -136,7 +150,7 @@ export default function UsersPage() {
             email: '',
             birthDate: null,
             gender: 'male',
-            role: 'developer',
+            role: undefined,
             isActive: true,
             salary: 50000,
           },
@@ -160,20 +174,20 @@ export default function UsersPage() {
       };
 
       if (editingUser) {
-        setUsers(
-          users.map((user) =>
-            user.key === editingUser.key
-              ? { ...user, ...formattedValues }
-              : user,
-          ),
+        const updatedUsers = users.map((user) =>
+          user.key === editingUser.key ? { ...user, ...formattedValues } : user,
         );
+        setUsers(updatedUsers);
+        setFilteredUsers(updatedUsers);
         message.success('User updated successfully!');
       } else {
         const newUser: User = {
           key: Date.now().toString(),
           ...formattedValues,
         };
-        setUsers([...users, newUser]);
+        const updatedUsers = [...users, newUser];
+        setUsers(updatedUsers);
+        setFilteredUsers(updatedUsers);
         message.success('User created successfully!');
       }
       handleCancel();
@@ -181,7 +195,9 @@ export default function UsersPage() {
   };
 
   const handleDelete = (key: string) => {
-    setUsers(users.filter((user) => user.key !== key));
+    const updatedUsers = users.filter((user) => user.key !== key);
+    setUsers(updatedUsers);
+    setFilteredUsers(updatedUsers);
     message.success('User deleted successfully!');
   };
 
@@ -192,14 +208,12 @@ export default function UsersPage() {
       dataIndex: 'name',
       key: 'name',
       sorter: (a, b) => a.name.localeCompare(b.name),
-      ...getColumnSearchProps('name'),
     },
     {
       title: 'Email',
       dataIndex: 'email',
       key: 'email',
       sorter: (a, b) => a.email.localeCompare(b.email),
-      ...getColumnSearchProps('email'),
     },
     {
       title: 'Role',
@@ -266,22 +280,40 @@ export default function UsersPage() {
           justifyContent: 'space-between',
           alignItems: 'center',
           marginBottom: 24,
+          gap: 16,
+          flexWrap: 'wrap',
         }}
       >
         <Title level={3} style={{ margin: 0 }}>
           Users Management
         </Title>
-        <Button
-          type="primary"
-          icon={<PlusOutlined />}
-          onClick={() => showModal(null)}
-          size="large"
-        >
-          Create User
-        </Button>
+
+        <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+          <Input
+            placeholder="Search users..."
+            prefix={<SearchOutlined />}
+            value={searchText}
+            onChange={handleSearch}
+            style={{ width: 240 }}
+            allowClear
+          />
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            onClick={() => showModal(null)}
+            size="large"
+          >
+            Create User
+          </Button>
+        </div>
       </div>
 
-      <Table columns={columns} dataSource={users} rowKey="key" />
+      <Table
+        columns={columns}
+        dataSource={filteredUsers}
+        rowKey="key"
+        scroll={{ x: true }}
+      />
 
       <Modal
         title={editingUser ? 'Edit User' : 'Create User'}
@@ -290,6 +322,13 @@ export default function UsersPage() {
         onCancel={handleCancel}
         okText={editingUser ? 'Update' : 'Create'}
         width={700}
+        styles={{
+          body: {
+            maxHeight: '66vh',
+            overflowY: 'auto',
+            paddingRight: '8px',
+          },
+        }}
       >
         <Form form={form} layout="vertical" name="userForm">
           <Form.Item
@@ -350,7 +389,7 @@ export default function UsersPage() {
             label="Role"
             rules={[{ required: true, message: 'Please select role!' }]}
           >
-            <Select placeholder="Select a role">
+            <Select placeholder="Select a role" allowClear>
               {roleOptions.map((role) => (
                 <Option key={role.value} value={role.value}>
                   {role.label}
@@ -384,7 +423,7 @@ export default function UsersPage() {
               formatter={(value) =>
                 `$ ${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')
               }
-              parser={(value) => value!.replace(/\$\s?|(,*)/g, '')}
+              parser={(value) => +value!.replace(/\$\s?|(,*)/g, '') as 30000}
               min={30000}
               step={5000}
             />
