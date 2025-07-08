@@ -17,14 +17,13 @@ export const authOptions: NextAuthOptions = {
         email: {
           label: 'Email',
           type: 'email',
-          placeholder: 'user@example.com',
         },
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
         if (
-          credentials?.email === 'admin' &&
-          credentials.password === 'admin'
+          credentials?.email === 'admin@gmail.com' &&
+          credentials.password === 'admin@123'
         ) {
           const accessTokenExpires = Date.now() + 15 * 60 * 1000; // 15 minutes
           const refreshTokenExpires = Date.now() + 1 * 24 * 60 * 60 * 1000; // 1 day
