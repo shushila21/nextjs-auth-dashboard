@@ -15,8 +15,8 @@ import {
   Space,
   Typography,
   Popconfirm,
-  message,
   InputNumber,
+  App,
 } from 'antd';
 import {
   PlusOutlined,
@@ -45,6 +45,7 @@ export default function UsersPage() {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [editingUser, setEditingUser] = useState<IUserData | null>(null);
   const [searchText, setSearchText] = useState('');
+  const { notification } = App.useApp();
 
   // use the custom hook to get the debounced search term
   const debouncedSearchTerm = useDebouncedSearch(searchText, 350); // 350ms delay
@@ -115,7 +116,7 @@ export default function UsersPage() {
           user.key === editingUser.key ? { ...user, ...formattedValues } : user,
         );
         setUsers(updatedUsers);
-        message.success('User updated successfully!');
+        notification.success({ message: 'User updated successfully!' });
       } else {
         const newUser: IUserData = {
           key: Date.now().toString(),
@@ -123,7 +124,7 @@ export default function UsersPage() {
         };
         const updatedUsers = [...users, newUser];
         setUsers(updatedUsers);
-        message.success('User created successfully!');
+        notification.success({ message: 'User created successfully!' });
       }
       handleCancel();
     });
@@ -132,7 +133,7 @@ export default function UsersPage() {
   const handleDelete = (key: string) => {
     const updatedUsers = users.filter((user) => user.key !== key);
     setUsers(updatedUsers);
-    message.success('User deleted successfully!');
+    notification.success({ message: 'User deleted successfully!' });
   };
 
   // Columns configuration
