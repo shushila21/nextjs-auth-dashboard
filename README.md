@@ -1,36 +1,131 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🧩 Next.js Auth Dashboard
 
-## Getting Started
+A modern full-stack web application starter built with:
 
-First, run the development server:
+- **Next.js 15**
+- **NextAuth.js** with **JWT**
+- **Ant Design** UI library
+- **React Query** for data fetching and caching
+- **Zustand** for global state management
+
+---
+
+## 🚀 Features
+
+- 🔐 JWT-based authentication with [NextAuth.js](https://next-auth.js.org/)
+- 🎨 UI powered by [Ant Design](https://ant.design/)
+- ⚡ Server-side rendering and API routes with **Next.js**
+- 📦 Efficient data fetching with [React Query](https://tanstack.com/query/latest)
+- 🧠 State management using [Zustand](https://zustand-demo.pmnd.rs/)
+- 📁 Clean and modular code structure
+
+---
+
+## 📦 Tech Stack
+
+| Category           | Tool             |
+|--------------------|------------------|
+| Framework          | Next.js 15       |
+| Authentication     | NextAuth.js (JWT)|
+| UI Components      | Ant Design       |
+| State Management   | Zustand          |
+| Data Fetching      | React Query      |
+
+---
+
+## 🛠️ Getting Started
+
+### 1. Clone the repository
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/shushila21/nextjs-auth-dashboard.git
+cd nextjs-auth-dashboard
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Install dependencies
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+pnpm install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 3. Configure environment variables
 
-## Learn More
+Create a `.env.local` file in the root directory and add:
 
-To learn more about Next.js, take a look at the following resources:
+```env
+NEXTAUTH_SECRET=your_jwt_secret
+NEXTAUTH_URL=http://localhost:3000
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+> 🔐 Replace the variables with your actual credentials.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+### 4. Run the development server
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+pnpm dev
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+
+---
+
+## 📁 Project Structure
+
+```
+.
+├── src
+│   ├── app
+│   │   ├── api
+│   │   │   └── auth
+│   │   │       └── [...nextauth]
+│   │   │           └── route.ts
+│   │   ├── auth
+│   │   │   └── login
+│   │   │       └── page.tsx
+│   │   ├── (main)
+│   │   │   ├── dashboard
+│   │   │   │   └── page.tsx
+│   │   │   ├── users
+│   │   │   │   └── page.tsx
+│   │   │   ├── layoutStyles.ts
+│   │   │   └── layout.tsx
+│   │   ├── ClientProviders.tsx
+│   │   ├── favicon.ico
+│   │   ├── globals.css
+│   │   ├── layout.tsx
+│   │   └── page.tsx
+│   ├── components
+│   │   ├── BrandLogo
+│   │   │   └── index.tsx
+│   │   ├── charts
+│   │   │   └── SampleChart.tsx
+│   │   ├── MobileMenuDrawer
+│   │   │   └── index.tsx
+│   │   └── UserProfileDropdown
+│   │       └── index.tsx
+│   ├── constants
+│   │   ├── dashboard.ts
+│   │   ├── layout.ts
+│   │   ├── theme.ts
+│   │   └── users.ts
+│   ├── hooks
+│   │   ├── useAuthForm.ts
+│   │   ├── useDebouncedSearch.ts
+│   │   └── useFormHandler.ts
+│   ├── lib
+│   │   └── auth.ts
+│   ├── types
+│   │   └── layout.ts
+│   ├── utils
+│   │   └── validators.ts
+│   └── middleware.ts
+├── eslint.config.mjs
+├── next.config.ts
+├── package.json
+├── pnpm-lock.yaml
+├── prettier.config.js
+├── README.md
+└── tsconfig.json
+```
